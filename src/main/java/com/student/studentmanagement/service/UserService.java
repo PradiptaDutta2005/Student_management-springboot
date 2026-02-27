@@ -15,12 +15,6 @@ public class UserService {
 
     public List<User> getAllUsers() {
         return userRepository.findAll()
-                .stream()
-                .map(user -> new UserResponse(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getRole().name()
-                ))
-                .toList();
+                ;
     }
 }
