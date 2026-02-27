@@ -1,5 +1,6 @@
 package com.student.studentmanagement.controller;
 
+import com.student.studentmanagement.dto.UserResponse;
 import com.student.studentmanagement.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,9 +26,13 @@ public class AdminController {
         return subjectRepository.save(subject);
     }
 
+//    @GetMapping("/all-users")
+//    public List<User> getAllUsers() {
+////        return userRepository.findAll();
+//        return userService.getAllUsers();
+//    }
     @GetMapping("/all-users")
-    public List<User> getAllUsers() {
-//        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
-    }
+        }
 }
