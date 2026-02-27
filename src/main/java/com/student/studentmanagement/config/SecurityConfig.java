@@ -1,5 +1,5 @@
 package com.student.studentmanagement.config;
-
+import org.springframework.security.config.http.SessionCreationPolicy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,23 +21,35 @@ public class SecurityConfig {
 
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//
+//                        // Public endpoints
+//                        .requestMatchers("/auth/**").permitAll()
+//
+//                        // Role-based endpoints
+//                        .requestMatchers("/admin/**").hasRole("ADMIN")
+//                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+//                        .requestMatchers("/student/**").hasRole("STUDENT")
+//
+//                        // Everything else must be authenticated
+//                        .anyRequest().authenticated()
+//                )
+//                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         http
                 .csrf(csrf -> csrf.disable())
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-
-                        // Public endpoints
                         .requestMatchers("/auth/**").permitAll()
-
-                        // Role-based endpoints
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
                         .requestMatchers("/student/**").hasRole("STUDENT")
-
-                        // Everything else must be authenticated
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 

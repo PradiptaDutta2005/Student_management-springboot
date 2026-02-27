@@ -16,4 +16,9 @@ public class Subject {
     private Long id;
 
     private String name;
+
+    // 🔥 Assign teacher
+    @ManyToOne
+    @JoinColumn(name = "teacher_id")
+    private User teacher;
 }

@@ -1,5 +1,6 @@
 package com.student.studentmanagement.controller;
 
+import com.student.studentmanagement.dto.AssignSubjectRequest;
 import com.student.studentmanagement.dto.UserResponse;
 import com.student.studentmanagement.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -40,4 +41,45 @@ public class AdminController {
     public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
         }
+//    @PostMapping("/assign-subject")
+//    public Subject assignSubjectToTeacher(@RequestParam Long subjectId,
+//                                          @RequestParam Long teacherId) {
+//
+//        Subject subject = subjectRepository.findById(subjectId)
+//                .orElseThrow(() -> new RuntimeException("Subject not found"));
+//
+//        User teacher = userRepository.findById(teacherId)
+//                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+//
+//        if (teacher.getRole().name().equals("TEACHER")) {
+//            subject.setTeacher(teacher);
+//            return subjectRepository.save(subject);
+//        } else {
+//            throw new RuntimeException("User is not a teacher!");
+//        }
+//    }
+    @PostMapping("/assign-subject")
+    public Subject assignSubject(@RequestBody AssignSubjectRequest request) {
+
+        Subject subject = subjectRepository.findById(request.getSubjectId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
+
+        User teacher = userRepository.findById(request.getTeacherId())
+                .orElseThrow(() -> new RuntimeException("Teacher not found"));
+
+        subject.setTeacher(teacher);
+        return subjectRepository.save(subject);
+    }
+    @GetMapping("/teachers")
+    public List<UserResponse> getAllTeachers() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRole().name().equals("TEACHER"))
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getRole().name()
+                ))
+                .toList();
+    }
 }
