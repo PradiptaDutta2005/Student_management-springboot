@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,21 +21,28 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
-            String token = authHeader.substring(7);
-
             try {
+                // 1️⃣ Extract token
+                String token = authHeader.substring(7);
+
+                // 2️⃣ Extract username & role from token
                 String username = jwtUtil.extractUsername(token);
                 String role = jwtUtil.extractRole(token);
 
+                // 3️⃣ Debug log (you already saw this working)
+                System.out.println("ROLE FROM TOKEN = " + role);
+
+                // 4️⃣ Create Authentication object
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 username,
@@ -44,14 +50,17 @@ public class JwtFilter extends OncePerRequestFilter {
                                 List.of(new SimpleGrantedAuthority("ROLE_" + role))
                         );
 
+                // 5️⃣ Set authentication in security context
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {
+                // Invalid token
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
         }
 
+        // 6️⃣ Continue filter chain
         filterChain.doFilter(request, response);
     }
 }

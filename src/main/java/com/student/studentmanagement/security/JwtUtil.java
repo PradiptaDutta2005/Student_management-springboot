@@ -10,27 +10,21 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET = "ThisIsVerySecretKeyForJwtGenerationThisIsVerySecretKey";
+    private static final String SECRET =
+            "ThisIsVerySecretKeyForJwtGenerationThisIsVerySecretKey";
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
-    public String extractRole(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("role", String.class);
-    }
-    // ✅ THIS METHOD MUST EXIST
-    public String generateToken(String username, String role) {
 
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 hours
+                .setExpiration(
+                        new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)
+                )
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -42,5 +36,14 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String extractRole(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
 }

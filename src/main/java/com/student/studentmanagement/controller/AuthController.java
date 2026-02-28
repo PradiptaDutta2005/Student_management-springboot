@@ -1,12 +1,12 @@
 package com.student.studentmanagement.controller;
 
+import com.student.studentmanagement.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.student.studentmanagement.repository.UserRepository;
 import com.student.studentmanagement.entity.User;
-import com.student.studentmanagement.security.JwtUtil;
 
 @RestController
 @RequestMapping("/auth")
