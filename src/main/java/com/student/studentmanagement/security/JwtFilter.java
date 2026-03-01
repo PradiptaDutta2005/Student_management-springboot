@@ -27,6 +27,14 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
+        // ✅ 🔥 ADD THIS BLOCK AT THE VERY TOP 🔥
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.startsWith("multipart/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        // ✅ 🔥 END OF FIX 🔥
+
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -39,10 +47,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 String username = jwtUtil.extractUsername(token);
                 String role = jwtUtil.extractRole(token);
 
-                // 3️⃣ Debug log (you already saw this working)
                 System.out.println("ROLE FROM TOKEN = " + role);
 
-                // 4️⃣ Create Authentication object
+                // 3️⃣ Create Authentication object
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 username,
@@ -50,17 +57,16 @@ public class JwtFilter extends OncePerRequestFilter {
                                 List.of(new SimpleGrantedAuthority("ROLE_" + role))
                         );
 
-                // 5️⃣ Set authentication in security context
+                // 4️⃣ Set authentication
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {
-                // Invalid token
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 return;
             }
         }
 
-        // 6️⃣ Continue filter chain
+        // 5️⃣ Continue filter chain
         filterChain.doFilter(request, response);
     }
 }

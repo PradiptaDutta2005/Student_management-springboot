@@ -36,7 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
 
                         // 📘 Notes APIs
-                        .requestMatchers("/notes/upload").hasRole("TEACHER")
+                        .requestMatchers("/notes/upload").permitAll()
                         .requestMatchers("/notes/subject/**")
                         .hasAnyRole("TEACHER", "STUDENT")
 
