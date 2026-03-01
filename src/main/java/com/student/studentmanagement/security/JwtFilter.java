@@ -28,11 +28,11 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         // ✅ 🔥 ADD THIS BLOCK AT THE VERY TOP 🔥
-        String contentType = request.getContentType();
-        if (contentType != null && contentType.startsWith("multipart/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+//        String contentType = request.getContentType();
+//        if (contentType != null && contentType.startsWith("multipart/")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
         // ✅ 🔥 END OF FIX 🔥
 
         String authHeader = request.getHeader("Authorization");
