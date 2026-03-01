@@ -16,11 +16,12 @@ public class StudentController {
 
     @GetMapping("/attendance/{studentId}")
     public List<Attendance> getAttendance(@PathVariable Long studentId) {
-        return attendanceRepository.findByStudentId(studentId);
+        return attendanceRepository.findByStudent_Id(studentId);
     }
 
     @GetMapping("/notes/{subjectId}")
     public List<Notes> getNotes(@PathVariable Long subjectId) {
         return notesRepository.findBySubjectId(subjectId);
     }
+
 }

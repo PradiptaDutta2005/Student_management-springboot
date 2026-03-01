@@ -18,6 +18,5 @@ public class Notes {
     private Long subjectId;
 
     private String title;
-
-    private String fileUrl; // For now store link/path
+    private String content;
 }
