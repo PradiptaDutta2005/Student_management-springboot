@@ -1,8 +1,17 @@
 package com.student.studentmanagement.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+
 import com.student.studentmanagement.repository.*;
 import com.student.studentmanagement.entity.*;
 
@@ -16,11 +25,23 @@ public class StudentController {
 
     @GetMapping("/attendance/{studentId}")
     public List<Attendance> getAttendance(@PathVariable Long studentId) {
-        return attendanceRepository.findByStudentId(studentId);
+        return attendanceRepository.findByStudent_Id(studentId);
     }
 
-    @GetMapping("/notes/{subjectId}")
-    public List<Notes> getNotes(@PathVariable Long subjectId) {
-        return notesRepository.findBySubjectId(subjectId);
+    @GetMapping("/download/{filename}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws Exception {
+
+        Path filePath = Paths.get("uploads").resolve(filename);
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found");
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }
