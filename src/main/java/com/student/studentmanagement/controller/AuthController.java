@@ -1,5 +1,6 @@
 package com.student.studentmanagement.controller;
 
+import com.student.studentmanagement.dto.AuthResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,18 +32,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String login(@RequestBody User request) {
+    public AuthResponse login(@RequestBody User request) {
 
         User user = userRepository.findByUsername(request.getUsername());
 
         if (user == null) {
-            return "User not found!";
+            throw new RuntimeException("User not found");
         }
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return "Invalid password!";
+            throw new RuntimeException("Invalid password");
         }
 
-        return jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+
+        return new AuthResponse(token);
     }
 }

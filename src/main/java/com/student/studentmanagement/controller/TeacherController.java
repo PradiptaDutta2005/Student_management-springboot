@@ -1,12 +1,17 @@
 package com.student.studentmanagement.controller;
 
+import org.springframework.core.io.Resource;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import com.student.studentmanagement.repository.*;
@@ -22,7 +27,37 @@ public class TeacherController {
     private final UserRepository userRepository;
     private final SubjectRepository subjectRepository;
 
-    // ✅ MARK ATTENDANCE
+    // -------------------------------
+    // GET SUBJECTS FOR TEACHER
+    // -------------------------------
+    @GetMapping("/subjects")
+    public List<Subject> getTeacherSubjects() {
+
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User teacher = userRepository.findByUsername(username);
+
+        return subjectRepository.findAll()
+                .stream()
+                .filter(s -> s.getTeacher() != null &&
+                        s.getTeacher().getId().equals(teacher.getId()))
+                .toList();
+    }
+
+    // -------------------------------
+    // GET ALL STUDENTS
+    // -------------------------------
+    @GetMapping("/students")
+    public List<User> getStudents() {
+        return userRepository.findByRole(Role.STUDENT);
+    }
+
+    // -------------------------------
+    // MARK ATTENDANCE
+    // -------------------------------
     @PostMapping("/mark-attendance")
     public String markAttendance(@RequestBody Attendance attendance) {
 
@@ -59,7 +94,9 @@ public class TeacherController {
         return "Attendance marked successfully!";
     }
 
-    // ✅ UPLOAD NOTES WITH HASHED FILE NAME
+    // -------------------------------
+    // UPLOAD NOTES
+    // -------------------------------
     @PostMapping("/upload-notes")
     public String uploadNotes(
             @RequestParam("file") MultipartFile file,
@@ -81,7 +118,6 @@ public class TeacherController {
             throw new RuntimeException("Not allowed");
         }
 
-        // 🔥 Extract extension safely
         String originalName = file.getOriginalFilename();
         String extension = "";
 
@@ -97,9 +133,11 @@ public class TeacherController {
             Files.createDirectories(uploadPath);
         }
 
-        Files.copy(file.getInputStream(),
+        Files.copy(
+                file.getInputStream(),
                 uploadPath.resolve(hashedName),
-                StandardCopyOption.REPLACE_EXISTING);
+                StandardCopyOption.REPLACE_EXISTING
+        );
 
         Notes notes = Notes.builder()
                 .title(title)
@@ -112,5 +150,40 @@ public class TeacherController {
         notesRepository.save(notes);
 
         return "File uploaded successfully!";
+    }
+
+    // -------------------------------
+    // DOWNLOAD NOTES
+    // -------------------------------
+    @GetMapping("/download/{fileName}")
+    public ResponseEntity<Resource> download(@PathVariable String fileName) throws Exception {
+
+        Path path = Paths.get("uploads").resolve(fileName);
+
+        Resource resource = new UrlResource(path.toUri());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + fileName + "\"")
+                .body(resource);
+    }
+
+    // -------------------------------
+    // GET NOTES FOR TEACHER
+    // -------------------------------
+    @GetMapping("/notes")
+    public List<Notes> getNotes() {
+
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User teacher = userRepository.findByUsername(username);
+
+        return notesRepository.findAll()
+                .stream()
+                .filter(n -> n.getSubject().getTeacher().getId().equals(teacher.getId()))
+                .toList();
     }
 }

@@ -10,7 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.student.studentmanagement.repository.*;
 import com.student.studentmanagement.entity.*;
-
+import com.student.studentmanagement.entity.User;
+import com.student.studentmanagement.entity.Role;
 @RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
@@ -81,5 +82,13 @@ public class AdminController {
                         user.getRole().name()
                 ))
                 .toList();
+    }
+    @GetMapping("/subjects")
+    public List<Subject> getAllSubjects() {
+        return subjectRepository.findAll();
+    }
+    @GetMapping("/students")
+    public List<User> getStudents() {
+        return userRepository.findByRole(Role.STUDENT);
     }
 }
