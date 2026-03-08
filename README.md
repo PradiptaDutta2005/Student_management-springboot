@@ -129,7 +129,7 @@ spring.datasource.password=yourpassword
 mvn spring-boot:run
 🌐 Server
 
-The backend server will start at:
+The server will start at:
 
 http://localhost:8080
 📸 Project Screenshots
